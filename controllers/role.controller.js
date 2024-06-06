@@ -38,12 +38,13 @@ const createRole = async (req, res) => {
 
     if (existingRole) {
       return res.status(400).json({
-        message: "A role with this name already exists for the company!",
+        message: "A role with this name already exists for this company!",
       });
     }
 
     // Assign the company's name to the user's company field
     roleData.company = companyExists.name;
+    roleData.name=existingRole.name;
 
     // Create the user with the provided data
     const role = await Role.create(roleData);
@@ -76,19 +77,20 @@ const updateRole = async (req, res) => {
       const roleExists = await Role.findOne({ company, name });
       if (roleExists) {
         return res.status(400).json({
-          message:
-            "The role already exists under this company.",
+          message: "The role already exists under this company.",
         });
       }
     }
 
     // Update the role and fetch the updated role
-    const updatedRole = await Role.findByIdAndUpdate(id, updateData, {
-      new: true,
-    });
-    if (!updatedRole) {
-      return res.status(400).json({ message: "Role doesn't exist!" });
-    }
+     const updatedRole = await Role.findByIdAndUpdate(
+       id,
+       { ...updateData, name ,company},
+       { new: true }
+     );
+     if (!updatedRole) {
+       return res.status(400).json({ message: "Role doesn't exist!" });
+     }
 
     res.status(200).json(updatedRole); // Return the updated role in the response
   } catch (error) {

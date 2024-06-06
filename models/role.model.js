@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const companySchema = mongoose.Schema(
+const roleSchema = mongoose.Schema(
   {
     company: {
       type: String,
@@ -17,8 +17,7 @@ const companySchema = mongoose.Schema(
   }
 );
 
-// Define a compound unique index on the company and name fields
-companySchema.index({ company: 1, name: 1 }, { unique: true });
 
-const Role = mongoose.model("Role", companySchema);
+
+const Role = mongoose.model("Role", roleSchema);
 module.exports = Role;

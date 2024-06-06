@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const Company = require("../models/company.model");
+const Role=require("../models/role.model");
 
 const getAllUser = async (req, res) => {
   try {
@@ -20,15 +21,19 @@ const getSingleUser = async (req, res) => {
 };
 const createUser = async (req, res) => {
   try {
-    const { company, ...userData } = req.body;
+    const { company,role, ...userData } = req.body;
 
     // Check if the company exists by its name
     const companyExists = await Company.findOne({ name: company });
+    const roleExists=await Role.findOne({company:company,name:role})
 
     if (!companyExists) {
       return res.status(400).json({
         message: "You can't create a user because Company doesn't exist!",
       });
+    }
+    if(!roleExists){
+      return res.status(400).json({message:"You can't create a user because this role doesn't exist under this company. "})
     }
 
     // Assign the company's name to the user's company field
@@ -48,18 +53,25 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { company } = req.body;
+    const { company ,role} = req.body;
 
     if (company) {
       // Directly search for the company name without case-insensitivity
       const companyExists = await Company.findOne({ name: company });
+      const roleExists=await Role.findOne({company:company,name :role});
       if (!companyExists) {
         return res.status(400).json({
           message:
             "You can't update the user because the company doesn't exist.",
         });
       }
+      if(!roleExists){
+        return res.status(400).json({
+          message:"You can't update the user because the role doesn't exist under this company"
+        });
+      }
       req.body.company = companyExists.name;
+      req.body.role=roleExists.name;
     }
 
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
